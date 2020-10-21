@@ -4,7 +4,7 @@ This is a PowerShell module for getting and installing SSL certificates from Key
 
 Example:
 ```
-> Import-Module .\src\Install-CertFromAzure.ps1
-> Install-CertFromAzure -VaultName my-keyvault -CertName my-cert-name
+> Import-Module .\src\Install-CertFromKeyVault.ps1
+> Install-CertFromKeyVault -VaultName my-keyvault -CertName my-cert-name
 ```
 

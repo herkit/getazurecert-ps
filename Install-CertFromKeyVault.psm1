@@ -5,7 +5,9 @@ function Install-CertFromKeyVault
         [Parameter(Mandatory=$true)]
         [string] $VaultName,
         [Parameter(Mandatory=$true)]
-        [string] $CertName
+        [string] $CertName,
+        [Parameter(Mandatory=$true)]
+        [string] $CertDomain
     )
 
     Process
@@ -34,6 +36,13 @@ function Install-CertFromKeyVault
 
         if (-Not $installed) { 
             Import-PfxCertificate -FilePath $certPath -CertStoreLocation cert:\LocalMachine\My 
+
+            Get-WebBinding -Protocol Https | Where-Object {$_.bindingInformation -match "^(\*\:443\:[a-zA-Z0-9-_]{0,62}\.)$CertDomain -and $_.sslFlags -GT 0"} | select -expand bindingInformation | %{$_.split(':')[-1]} | ForEach-Object {
+				        $binding = Get-WebBinding -HostHeader $_ -Protocol Https | Where-Object {$_.sslFlags -GT 0}
+				        if ($binding) {
+					          $binding.AddSslCertificate($cert.Thumbprint, "My")
+				        }
+			      }
         } else {
             if ($expiring) { 
                 Import-PfxCertificate -FilePath $certPath -CertStoreLocation cert:\LocalMachine\My 
@@ -42,6 +51,12 @@ function Install-CertFromKeyVault
             else 
             {
                 Write-Host "Certificate exists and is not close to expiring" 
+                Get-WebBinding -Protocol Https | Where-Object {$_.bindingInformation -match "^(\*\:443\:[a-zA-Z0-9-_]{0,62}\.)$CertDomain -and $_.sslFlags -GT 0"} | select -expand bindingInformation | %{$_.split(':')[-1]} | ForEach-Object {
+				            $binding = Get-WebBinding -HostHeader $_ -Protocol Https | Where-Object {$_.sslFlags -GT 0}
+				            if ($binding) {
+					              $binding.AddSslCertificate($cert.Thumbprint, "My")
+				            }
+			          }
             }
         }
 

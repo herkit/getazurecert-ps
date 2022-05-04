@@ -32,7 +32,7 @@ function Install-CertFromKeyVault
         $cert = Get-PfxCertificate -FilePath $certPath
 
         $installed = Get-ChildItem -Path Cert:\LocalMachine -Recurse | Where-Object -Property Thumbprint -EQ $cert.Thumbprint
-        $expiring = Get-ChildItem -Path Cert:\LocalMachine -Recurse | where { $_.notafter -le (Get-Date).AddDays(5) } | Where-Object -Property Subject -EQ $cert.Subject
+        $expiring = Get-ChildItem -Path Cert:\LocalMachine -Recurse | where { $_.notafter -le (Get-Date).AddDays(5) } | Where-Object -Property Subject -like ($cert.Subject -replace "\*", "``*")
 
         $CertDomainRex = $CertDomain -replace "\*","[a-zA-Z0-9-_]{0,62}"
 

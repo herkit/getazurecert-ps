@@ -48,7 +48,7 @@ function Install-CertFromKeyVault
         } else {
             if ($expiring) { 
                 Import-PfxCertificate -FilePath $certPath -CertStoreLocation cert:\LocalMachine\My 
-                Remove-Item $expiring
+                $expiring | Remove-Item
             } 
             else 
             {

@@ -5,9 +5,7 @@ function Install-CertFromKeyVault
         [Parameter(Mandatory=$true)]
         [string] $VaultName,
         [Parameter(Mandatory=$true)]
-        [string] $CertName,
-        [Parameter(Mandatory=$true)]
-        [string] $CertDomain
+        [string] $CertName
     )
 
     Process
@@ -34,7 +32,7 @@ function Install-CertFromKeyVault
         $installed = Get-ChildItem -Path Cert:\LocalMachine -Recurse | Where-Object -Property Thumbprint -EQ $cert.Thumbprint
         $expiring = Get-ChildItem -Path Cert:\LocalMachine -Recurse | where { $_.notafter -le (Get-Date).AddDays(5) } | Where-Object -Property Subject -like ($cert.Subject -replace "\*", "``*")
 
-        $CertDomainRex = $CertDomain -replace "\*","[a-zA-Z0-9-_]{0,62}"
+        $CertDomainRex = $cert.Subject -replace "CN=", "" -replace "\*","[a-zA-Z0-9-_]{0,62}"
 
         if (-Not $installed) { 
             Import-PfxCertificate -FilePath $certPath -CertStoreLocation cert:\LocalMachine\My 

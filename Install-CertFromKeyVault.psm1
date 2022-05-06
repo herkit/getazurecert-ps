@@ -58,13 +58,14 @@ function Install-CertFromKeyVault
             else 
             {
                 Write-Host "Certificate exists and is not close to expiring" 
-                Get-PfxCertificate -FilePath $certPath
                 AttachSSlCertToBinding -CertDomain $CertDomainRex
             }
         }
 
         Remove-Item $tempCertPath
-        Remove-Item $certPath 
+        Remove-Item $certPath
+        $outValues = @{Thumbprint=$cert.Thumbprint;B64Cert=$b64}
+        return  $outValues
     }
 }
 
